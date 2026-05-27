@@ -1,4 +1,289 @@
-public\Games\index.html
+.github\workflows\deploy.yml
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './public'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+        account\index.html
+
+        <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico">
+  <title>Mods-Hub — My Account</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0e0e10;
+      --surface: #18181c;
+      --surface2: #1f1f25;
+      --border: rgba(255,255,255,0.08);
+      --text: #f0f0f0;
+      --muted: #888;
+      --accent: #4285F4;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(66,133,244,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(66,133,244,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 32px;
+      background: rgba(14,14,16,0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--text); text-decoration: none; }
+    .nav-logo span { color: var(--accent); }
+    .nav-back { color: var(--muted); text-decoration: none; font-size: 14px; transition: color .2s; }
+    .nav-back:hover { color: var(--text); }
+    .container { max-width: 800px; margin: 40px auto; padding: 0 24px; }
+    .profile-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .avatar {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: rgba(66,133,244,0.15);
+      border: 2px solid var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 700;
+      color: var(--accent);
+      margin: 0 auto 16px;
+    }
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .mods-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .mod-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      text-decoration: none;
+      color: var(--text);
+      transition: transform .2s, border-color .2s;
+    }
+    .mod-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+    .mod-card-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+    .mod-card-game { font-size: 11px; color: var(--accent); }
+    .empty-msg { color: var(--muted); text-align: center; padding: 32px; }
+    button {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: background .2s;
+    }
+    button:hover { background: rgba(255,255,255,0.1); }
+    .logout-btn {
+      background: transparent;
+      border-color: rgba(255,59,48,0.4);
+      color: #ff6b60;
+      margin-top: 8px;
+    }
+    .logout-btn:hover { background: rgba(255,59,48,0.1); }
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: var(--muted);
+    }
+    .loading .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="../main/index.html" class="nav-logo">Mods<span>Hub</span></a>
+  <a href="../main/index.html" class="nav-back">← Back to Browse</a>
+</nav>
+<div class="container" id="container">
+  <div class="loading">
+    <div class="spinner"></div>
+    <p>Loading account info...</p>
+  </div>
+</div>
+
+<script>
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyD2GtdV6GXnRXmotFnesm0Z4W8rPWI5n3I",
+  authDomain: "mods-hub-b0fea.firebaseapp.com",
+  projectId: "mods-hub-b0fea",
+  storageBucket: "mods-hub-b0fea.appspot.com",
+  messagingSenderId: "991520677693",
+  appId: "1:991520677693:web:75612c95769a89dc9baf54",
+  databaseURL: "https://mods-hub-b0fea-default-rtdb.asia-southeast1.firebasedatabase.app"
+};
+
+// Initialize Firebase
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Wait for auth to be ready
+firebase.auth().onAuthStateChanged(async (user) => {
+  console.log("Auth state changed:", user ? user.email : "No user");
+  
+  if (!user) {
+    document.getElementById('container').innerHTML = `
+      <div class="profile-card">
+        <p>Please sign in to view your account.</p>
+        <a href="../login/index.html" style="display:inline-block;margin-top:16px; color:var(--accent); text-decoration:none;">Sign In →</a>
+      </div>
+    `;
+    return;
+  }
+
+  try {
+    // Load user's mods from 'mods' path (NOT 'mods-list')
+    const modsSnap = await firebase.database().ref('mods').orderByChild('authorId').equalTo(user.uid).once('value');
+    console.log("Mods snapshot exists:", modsSnap.exists());
+    
+    let myMods = [];
+    if (modsSnap.exists()) {
+      modsSnap.forEach(child => {
+        myMods.push({ id: child.key, ...child.val() });
+      });
+    }
+    myMods.reverse(); // newest first
+
+    let modsHtml = '';
+    if (myMods.length === 0) {
+      modsHtml = '<div class="empty-msg">You haven\'t published any mods yet.<br><a href="../mods/index.html" style="color:var(--accent);">Create your first mod →</a></div>';
+    } else {
+      modsHtml = '<div class="mods-grid">';
+      myMods.forEach(mod => {
+        modsHtml += `
+          <a href="../view-mod/index.html?id=${mod.id}" class="mod-card">
+            <div class="mod-card-title">${escapeHtml(mod.modName)}</div>
+            <div class="mod-card-game">${escapeHtml(mod.gameName)}</div>
+          </a>
+        `;
+      });
+      modsHtml += '</div>';
+    }
+
+    // Render the page
+    document.getElementById('container').innerHTML = `
+      <div class="profile-card">
+        <div class="avatar">${escapeHtml((user.displayName || user.email || 'U')[0].toUpperCase())}</div>
+        <h2>${escapeHtml(user.displayName || 'Modder')}</h2>
+        <p style="color:var(--muted); font-size:13px;">${escapeHtml(user.email || '')}</p>
+        <button class="logout-btn" id="logoutBtn" style="margin-top:20px;">Sign Out</button>
+      </div>
+      <div class="section">
+        <div class="section-title">📦 My Mods (${myMods.length})</div>
+        ${modsHtml}
+      </div>
+    `;
+
+    // Add logout handler
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        firebase.auth().signOut();
+        window.location.href = '../main/index.html';
+      });
+    }
+    
+  } catch (error) {
+    console.error("Error loading account:", error);
+    document.getElementById('container').innerHTML = `
+      <div class="profile-card">
+        <p style="color: #ff6b60;">Error loading account data.</p>
+        <p style="font-size: 12px; margin-top: 8px;">${escapeHtml(error.message)}</p>
+        <a href="../main/index.html" style="display:inline-block;margin-top:16px; color:var(--accent);">Go Back →</a>
+      </div>
+    `;
+  }
+});
+</script>
+</body>
+</html>
+
+Games\index.html
 
 <!DOCTYPE html>
 <html lang="en">
@@ -198,7 +483,7 @@ public\Games\index.html
 </body>
 </html>
 
-public\login\index.html
+login\index.html
 
 <!DOCTYPE html>
 <html lang="en">
@@ -485,8 +770,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </body>
 </html>
 
-public\main\index.html
-
+main\index.html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -504,15 +788,19 @@ public\main\index.html
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0e0e10;
-      --surface: #18181c;
-      --surface2: #1f1f25;
-      --border: rgba(255,255,255,0.07);
-      --border-hover: rgba(255,255,255,0.16);
+      --bg: #0a0a0c;
+      --surface: #121216;
+      --surface2: #1a1a22;
+      --surface3: #22222c;
+      --border: rgba(255,255,255,0.06);
+      --border-hover: rgba(255,255,255,0.12);
       --text: #f0f0f0;
-      --muted: #888;
+      --text-secondary: #aaa;
+      --muted: #6a6a6a;
       --accent: #4285F4;
-      --accent-glow: rgba(66,133,244,0.25);
+      --accent-dark: #2a75f3;
+      --accent-glow: rgba(66,133,244,0.2);
+      --gradient-1: linear-gradient(135deg, #4285F4, #8E44AD);
     }
 
     body {
@@ -528,12 +816,16 @@ public\main\index.html
       position: fixed;
       inset: 0;
       background-image:
-        linear-gradient(rgba(66,133,244,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(66,133,244,0.025) 1px, transparent 1px);
-      background-size: 60px 60px;
+        radial-gradient(circle at 20% 80%, rgba(66,133,244,0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(142,68,173,0.02) 0%, transparent 50%);
       pointer-events: none;
       z-index: 0;
     }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--surface); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
 
     /* ── NAV ── */
     nav {
@@ -544,76 +836,87 @@ public\main\index.html
       align-items: center;
       justify-content: space-between;
       padding: 14px 32px;
-      background: rgba(14,14,16,0.85);
-      backdrop-filter: blur(14px);
+      background: rgba(10,10,12,0.92);
+      backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
     }
 
     .nav-logo {
       font-family: 'Syne', sans-serif;
       font-weight: 800;
-      font-size: 20px;
-      color: var(--text);
+      font-size: 22px;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
       text-decoration: none;
     }
-    .nav-logo span { color: var(--accent); }
+    .nav-logo span { 
+      background: linear-gradient(135deg, #fff, var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
 
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
     }
 
     .nav-link {
-      color: var(--muted);
+      color: var(--text-secondary);
       text-decoration: none;
       font-size: 14px;
-      padding: 6px 12px;
-      border-radius: 8px;
-      transition: color .2s, background .2s;
+      padding: 6px 14px;
+      border-radius: 10px;
+      transition: all .2s;
     }
-    .nav-link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+    .nav-link:hover { color: var(--text); background: rgba(255,255,255,0.04); }
 
     .nav-btn {
-      color: white;
       background: var(--accent);
       border: none;
-      border-radius: 20px;
-      padding: 7px 18px;
+      border-radius: 24px;
+      padding: 7px 20px;
       font-family: 'DM Sans', sans-serif;
       font-size: 14px;
       font-weight: 500;
+      color: white;
       cursor: pointer;
       text-decoration: none;
-      display: inline-block;
-      transition: background .2s, transform .2s;
+      transition: all .2s;
     }
-    .nav-btn:hover { background: #2a75f3; transform: translateY(-1px); }
+    .nav-btn:hover { background: var(--accent-dark); transform: translateY(-1px); }
 
     .nav-account {
       display: none;
       align-items: center;
       gap: 10px;
+      background: var(--surface2);
+      padding: 5px 12px 5px 8px;
+      border-radius: 40px;
+      border: 1px solid var(--border);
     }
 
     .nav-avatar {
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: rgba(66,133,244,0.2);
-      border: 1px solid var(--accent);
+      background: var(--accent-glow);
+      border: 1.5px solid var(--accent);
       display: flex;
       align-items: center;
       justify-content: center;
       font-family: 'Syne', sans-serif;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
       color: var(--accent);
     }
 
     .nav-username {
-      font-size: 14px;
-      color: var(--muted);
+      font-size: 13px;
+      color: var(--text-secondary);
       max-width: 120px;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -625,56 +928,62 @@ public\main\index.html
       position: relative;
       z-index: 1;
       text-align: center;
-      padding: 64px 20px 48px;
+      padding: 70px 20px 50px;
     }
 
     .hero-badge {
       display: inline-block;
-      background: rgba(66,133,244,0.12);
-      border: 1px solid rgba(66,133,244,0.25);
+      background: var(--accent-glow);
+      border: 1px solid rgba(66,133,244,0.3);
       color: var(--accent);
       font-size: 12px;
       font-weight: 500;
-      padding: 4px 14px;
-      border-radius: 20px;
-      margin-bottom: 20px;
-      letter-spacing: 0.5px;
+      padding: 5px 16px;
+      border-radius: 30px;
+      margin-bottom: 24px;
+      letter-spacing: 0.8px;
       text-transform: uppercase;
+      backdrop-filter: blur(4px);
     }
 
     .hero h1 {
       font-family: 'Syne', sans-serif;
       font-weight: 800;
-      font-size: clamp(32px, 6vw, 56px);
+      font-size: clamp(36px, 7vw, 64px);
       line-height: 1.1;
-      letter-spacing: -1px;
-      margin-bottom: 16px;
+      letter-spacing: -2px;
+      margin-bottom: 20px;
     }
 
-    .hero h1 span { color: var(--accent); }
+    .hero h1 span { 
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
 
     .hero p {
       font-size: 16px;
-      color: var(--muted);
+      color: var(--text-secondary);
       max-width: 500px;
-      margin: 0 auto 32px;
-      line-height: 1.6;
+      margin: 0 auto 36px;
+      line-height: 1.7;
     }
 
     /* ── SEARCH ── */
     .search-wrap {
       display: flex;
-      max-width: 520px;
+      max-width: 540px;
       margin: 0 auto;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: 48px;
       overflow: hidden;
-      transition: border-color .2s, box-shadow .2s;
+      transition: all .3s;
     }
     .search-wrap:focus-within {
-      border-color: rgba(66,133,244,0.5);
-      box-shadow: 0 0 0 3px rgba(66,133,244,0.08);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
     }
 
     .search-input {
@@ -682,7 +991,7 @@ public\main\index.html
       background: transparent;
       border: none;
       outline: none;
-      padding: 13px 18px;
+      padding: 14px 20px;
       color: var(--text);
       font-family: 'DM Sans', sans-serif;
       font-size: 15px;
@@ -690,7 +999,7 @@ public\main\index.html
     .search-input::placeholder { color: var(--muted); }
 
     .search-icon {
-      padding: 0 16px;
+      padding: 0 18px;
       display: flex;
       align-items: center;
       color: var(--muted);
@@ -701,28 +1010,28 @@ public\main\index.html
       position: relative;
       z-index: 1;
       display: flex;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
-      padding: 0 32px 32px;
+      padding: 0 32px 36px;
       justify-content: center;
     }
 
     .filter-btn {
       background: var(--surface);
       border: 1px solid var(--border);
-      color: var(--muted);
-      border-radius: 20px;
-      padding: 6px 16px;
+      color: var(--text-secondary);
+      border-radius: 40px;
+      padding: 7px 20px;
       font-size: 13px;
+      font-weight: 500;
       cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
       transition: all .2s;
     }
-    .filter-btn:hover { border-color: var(--border-hover); color: var(--text); }
+    .filter-btn:hover { border-color: var(--accent); color: var(--text); transform: translateY(-2px); }
     .filter-btn.active {
-      background: rgba(66,133,244,0.12);
-      border-color: rgba(66,133,244,0.4);
-      color: var(--accent);
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
     }
 
     /* ── MODS GRID ── */
@@ -732,109 +1041,139 @@ public\main\index.html
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 32px 20px;
+      padding: 0 32px 24px;
     }
 
     .section-title {
       font-family: 'Syne', sans-serif;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
+      letter-spacing: -0.5px;
     }
 
     .mod-count {
       font-size: 13px;
       color: var(--muted);
+      background: var(--surface);
+      padding: 4px 12px;
+      border-radius: 30px;
     }
 
     .mods-grid {
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 24px;
       padding: 0 32px;
       max-width: 1400px;
       margin: 0 auto;
     }
 
-    /* mod card */
+    /* mod card - تصميم رهيب */
     .mod-card {
       display: flex;
       flex-direction: column;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 20px;
       overflow: hidden;
       text-decoration: none;
       color: var(--text);
-      transition: transform .25s, border-color .25s, box-shadow .25s;
+      transition: all .3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      position: relative;
+    }
+    .mod-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      padding: 1px;
+      background: var(--gradient-1);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity .3s;
+      pointer-events: none;
     }
     .mod-card:hover {
-      transform: translateY(-5px);
-      border-color: rgba(66,133,244,0.4);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(66,133,244,0.1);
+      transform: translateY(-6px);
+      border-color: transparent;
     }
+    .mod-card:hover::before { opacity: 1; }
 
     .mod-card-img {
       width: 100%;
       aspect-ratio: 16/9;
       object-fit: cover;
       background: var(--surface2);
+      transition: transform .4s;
     }
+    .mod-card:hover .mod-card-img { transform: scale(1.03); }
 
-    /* placeholder when no image */
     .mod-card-img-placeholder {
       width: 100%;
       aspect-ratio: 16/9;
-      background: linear-gradient(135deg, #1a1a22, #222230);
+      background: linear-gradient(135deg, var(--surface2), var(--surface3));
       display: flex;
       align-items: center;
       justify-content: center;
-      color: rgba(255,255,255,0.1);
-      font-size: 32px;
+      font-size: 40px;
+      color: var(--muted);
     }
 
     .mod-card-body {
-      padding: 12px 14px 14px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
       flex: 1;
     }
 
     .mod-card-game {
       font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
       color: var(--accent);
-      font-weight: 500;
+      font-weight: 600;
     }
 
     .mod-card-title {
       font-family: 'Syne', sans-serif;
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 700;
-      white-space: nowrap;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
       overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     .mod-card-author {
       font-size: 12px;
       color: var(--muted);
       margin-top: auto;
-      padding-top: 6px;
+      padding-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mod-card-author::before {
+      content: '👤';
+      font-size: 11px;
+      opacity: 0.6;
     }
 
     /* empty / loading state */
     .state-msg {
       grid-column: 1 / -1;
       text-align: center;
-      padding: 60px 20px;
+      padding: 80px 20px;
       color: var(--muted);
     }
-
-    .state-msg .icon { font-size: 40px; margin-bottom: 12px; }
+    .state-msg .icon { font-size: 56px; margin-bottom: 16px; opacity: 0.5; }
     .state-msg p { font-size: 15px; }
 
     /* ── FAB ── */
@@ -842,62 +1181,67 @@ public\main\index.html
       position: fixed;
       bottom: 28px;
       right: 28px;
-      width: 52px;
-      height: 52px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
-      background: var(--accent);
+      background: var(--gradient-1);
       color: white;
-      font-size: 26px;
+      font-size: 28px;
       border: none;
       cursor: pointer;
       display: none;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 20px rgba(66,133,244,0.4);
+      box-shadow: 0 6px 24px rgba(66,133,244,0.5);
       z-index: 200;
-      transition: transform .25s, box-shadow .25s;
+      transition: all .25s;
     }
-    #fab:hover { transform: rotate(45deg) scale(1.1); box-shadow: 0 8px 28px rgba(66,133,244,0.5); }
+    #fab:hover { transform: rotate(90deg) scale(1.08); box-shadow: 0 10px 32px rgba(66,133,244,0.7); }
 
     #fab-menu {
       position: fixed;
-      bottom: 92px;
+      bottom: 96px;
       right: 28px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       z-index: 199;
       opacity: 0;
       transform: translateY(16px);
       pointer-events: none;
       transition: .25s;
     }
-
     #fab-menu.open {
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
     }
-
     .fab-item {
-      background: var(--surface);
-      border: 1px solid var(--border-hover);
+      background: var(--surface2);
+      border: 1px solid var(--border);
       color: var(--text);
-      border-radius: 12px;
-      padding: 10px 18px;
-      font-family: 'DM Sans', sans-serif;
+      border-radius: 40px;
+      padding: 12px 24px;
       font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
-      white-space: nowrap;
-      transition: background .2s, border-color .2s;
+      backdrop-filter: blur(12px);
+      transition: all .2s;
     }
-    .fab-item:hover { background: var(--surface2); border-color: var(--accent); }
+    .fab-item:hover { background: var(--accent); border-color: var(--accent); transform: translateX(-4px); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    .loading-pulse { animation: pulse 1.5s ease-in-out infinite; }
 
     @media (max-width: 600px) {
       nav { padding: 12px 16px; }
       .filter-bar, .section-header { padding-left: 16px; padding-right: 16px; }
-      .mods-grid { padding: 0 16px; gap: 14px; }
+      .mods-grid { padding: 0 16px; gap: 16px; grid-template-columns: 1fr; }
       .hero { padding: 40px 16px 32px; }
+      .nav-username { display: none; }
     }
   </style>
 </head>
@@ -909,10 +1253,10 @@ public\main\index.html
   <div class="nav-links">
     <a href="../games/index.html" class="nav-link">Games</a>
     <a href="../us/index.html" class="nav-link">About</a>
-
+    <a href="../account/index.html" class="nav-link" id="accountLink" style="display:none;">My Account</a>
+    <a href="../settings/index.html" class="nav-link" id="settingsLink" style="display:none;">Settings</a>
     <a href="../login/index.html" class="nav-btn" id="nav-login-btn">Sign In</a>
-
-    <div class="nav-account" id="nav-account">
+    <div class="nav-account" id="nav-account" style="display:none;">
       <div class="nav-avatar" id="nav-avatar">?</div>
       <span class="nav-username" id="nav-username"></span>
     </div>
@@ -921,40 +1265,35 @@ public\main\index.html
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-badge">Community Mods</div>
+  <div class="hero-badge">✨ Community Mods</div>
   <h1>Find Mods for<br><span>Your Favorite Games</span></h1>
   <p>Browse, download and share high-quality mods created by the community.</p>
-
   <div class="search-wrap">
-    <span class="search-icon">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-      </svg>
-    </span>
+    <span class="search-icon">🔍</span>
     <input type="search" class="search-input" id="search-input" placeholder="Search mods or games...">
   </div>
 </section>
 
 <!-- FILTER BAR -->
 <div class="filter-bar" id="filter-bar">
-  <button class="filter-btn active" data-game="all">All Games</button>
-  <button class="filter-btn" data-game="Resident Evil 2 Remake">RE2 Remake</button>
-  <button class="filter-btn" data-game="Resident Evil 3 Remake">RE3 Remake</button>
-  <button class="filter-btn" data-game="Resident Evil 4 (2005)">RE4 (2005)</button>
-  <button class="filter-btn" data-game="Resident Evil 4 Remake">RE4 Remake</button>
-  <button class="filter-btn" data-game="Resident Evil 7">RE7</button>
-  <button class="filter-btn" data-game="Resident Evil Village">RE Village</button>
+  <button class="filter-btn active" data-game="all">✨ All Games</button>
+  <button class="filter-btn" data-game="Resident Evil 2 Remake">🧟 RE2 Remake</button>
+  <button class="filter-btn" data-game="Resident Evil 3 Remake">🧟 RE3 Remake</button>
+  <button class="filter-btn" data-game="Resident Evil 4 (2005)">🔫 RE4 (2005)</button>
+  <button class="filter-btn" data-game="Resident Evil 4 Remake">🔫 RE4 Remake</button>
+  <button class="filter-btn" data-game="Resident Evil 7">🏚️ RE7</button>
+  <button class="filter-btn" data-game="Resident Evil Village">🏰 RE Village</button>
 </div>
 
 <!-- GRID -->
 <div class="section-header">
-  <span class="section-title">Latest Mods</span>
+  <span class="section-title">🔥 Latest Mods</span>
   <span class="mod-count" id="mod-count"></span>
 </div>
 
 <div class="mods-grid" id="mods-grid">
   <div class="state-msg">
-    <div class="icon">⏳</div>
+    <div class="icon loading-pulse">⏳</div>
     <p>Loading mods...</p>
   </div>
 </div>
@@ -962,7 +1301,7 @@ public\main\index.html
 <!-- FAB -->
 <button id="fab" title="New Mod">+</button>
 <div id="fab-menu">
-  <button class="fab-item" onclick="location.href='../mods/index.html'">➕ Create New Mod</button>
+  <button class="fab-item" onclick="location.href='../mods/index.html'">✨ Create New Mod</button>
 </div>
 
 <script>
@@ -972,10 +1311,14 @@ const firebaseConfig = {
   projectId: "mods-hub-b0fea",
   storageBucket: "mods-hub-b0fea.appspot.com",
   messagingSenderId: "991520677693",
-  appId: "1:991520677693:web:75612c95769a89dc9baf54"
+  appId: "1:991520677693:web:75612c95769a89dc9baf54",
+  databaseURL: "https://mods-hub-b0fea-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
 
-firebase.initializeApp(firebaseConfig);
+// Initialize Firebase
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   const grid        = document.getElementById('mods-grid');
@@ -988,74 +1331,101 @@ document.addEventListener('DOMContentLoaded', () => {
   const navAccount  = document.getElementById('nav-account');
   const navAvatar   = document.getElementById('nav-avatar');
   const navUsername = document.getElementById('nav-username');
+  const accountLink = document.getElementById('accountLink');
+  const settingsLink = document.getElementById('settingsLink');
 
-  let allMods        = [];
-  let activeGame     = 'all';
-  let searchQuery    = '';
+  let allMods = [];
+  let activeGame = 'all';
+  let searchQuery = '';
 
   // ── Auth state
   firebase.auth().onAuthStateChanged(user => {
     if (user) {
-      fab.style.display     = 'flex';
-      navLogin.style.display   = 'none';
-      navAccount.style.display = 'flex';
-      navAvatar.textContent    = (user.displayName || 'U')[0].toUpperCase();
-      navUsername.textContent  = user.displayName || user.email || 'Account';
+      if (fab) fab.style.display = 'flex';
+      if (navLogin) navLogin.style.display = 'none';
+      if (navAccount) navAccount.style.display = 'flex';
+      if (navAvatar) navAvatar.textContent = (user.displayName || 'U')[0].toUpperCase();
+      if (navUsername) navUsername.textContent = user.displayName || user.email || 'Account';
+      if (accountLink) accountLink.style.display = 'inline-block';
+      if (settingsLink) settingsLink.style.display = 'inline-block';
     } else {
-      fab.style.display        = 'none';
-      navLogin.style.display   = 'inline-block';
-      navAccount.style.display = 'none';
+      if (fab) fab.style.display = 'none';
+      if (navLogin) navLogin.style.display = 'inline-block';
+      if (navAccount) navAccount.style.display = 'none';
+      if (accountLink) accountLink.style.display = 'none';
+      if (settingsLink) settingsLink.style.display = 'none';
     }
   });
 
   // ── FAB toggle
-  fab.addEventListener('click', () => fabMenu.classList.toggle('open'));
-  document.addEventListener('click', e => {
-    if (!fab.contains(e.target) && !fabMenu.contains(e.target)) {
-      fabMenu.classList.remove('open');
-    }
-  });
-
-  // ── Search
-  searchInput.addEventListener('input', () => {
-    searchQuery = searchInput.value.toLowerCase().trim();
-    renderMods();
-  });
-
-  // ── Filter
-  filterBar.addEventListener('click', e => {
-    const btn = e.target.closest('.filter-btn');
-    if (!btn) return;
-    filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    activeGame = btn.dataset.game;
-    renderMods();
-  });
-
-  // ── Read ?game= param from Games page links
-  const urlGame = new URLSearchParams(window.location.search).get('game');
-  if (urlGame) {
-    activeGame = urlGame;
-    filterBar.querySelectorAll('.filter-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.game === urlGame);
+  if (fab) {
+    fab.addEventListener('click', (e) => {
+      e.stopPropagation();
+      fabMenu.classList.toggle('open');
+    });
+    document.addEventListener('click', (e) => {
+      if (!fab.contains(e.target) && !fabMenu.contains(e.target)) {
+        fabMenu.classList.remove('open');
+      }
     });
   }
 
-  // ── Load mods from Firebase
-  firebase.database().ref('mods').on('value', snapshot => {
+  // ── Search
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      searchQuery = searchInput.value.toLowerCase().trim();
+      renderMods();
+    });
+  }
+
+  // ── Filter
+  if (filterBar) {
+    filterBar.addEventListener('click', (e) => {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+      filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeGame = btn.dataset.game;
+      renderMods();
+    });
+  }
+
+  // ── Read ?game= param
+  const urlGame = new URLSearchParams(window.location.search).get('game');
+  if (urlGame) {
+    activeGame = urlGame;
+    if (filterBar) {
+      filterBar.querySelectorAll('.filter-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.game === urlGame);
+      });
+    }
+  }
+
+  // ── Load mods from Firebase (مع console.log للتصحيح)
+  console.log("Loading mods from Firebase...");
+  firebase.database().ref('mods').on('value', (snapshot) => {
+    console.log("Snapshot received, exists:", snapshot.exists());
     allMods = [];
     if (snapshot.exists()) {
       snapshot.forEach(child => {
-        allMods.unshift({ id: child.key, ...child.val() }); // newest first
+        allMods.unshift({ id: child.key, ...child.val() });
       });
+      console.log("Total mods loaded:", allMods.length);
+    } else {
+      console.log("No mods found in database");
     }
     renderMods();
-  }, err => {
-    grid.innerHTML = `<div class="state-msg"><div class="icon">⚠️</div><p>Failed to load mods. Please try again later.</p></div>`;
+  }, (err) => {
+    console.error("Firebase error:", err);
+    if (grid) {
+      grid.innerHTML = `<div class="state-msg"><div class="icon">⚠️</div><p>Failed to load mods. Error: ${err.message}</p></div>`;
+    }
   });
 
   function renderMods() {
-    let filtered = allMods;
+    if (!grid) return;
+    
+    let filtered = [...allMods];
 
     if (activeGame !== 'all') {
       filtered = filtered.filter(m => m.gameName === activeGame);
@@ -1063,16 +1433,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (searchQuery) {
       filtered = filtered.filter(m =>
-        (m.modName  || '').toLowerCase().includes(searchQuery) ||
+        (m.modName || '').toLowerCase().includes(searchQuery) ||
         (m.gameName || '').toLowerCase().includes(searchQuery) ||
-        (m.modDesc  || '').toLowerCase().includes(searchQuery)
+        (m.modDesc || '').toLowerCase().includes(searchQuery)
       );
     }
 
-    countEl.textContent = filtered.length ? `${filtered.length} mod${filtered.length !== 1 ? 's' : ''} found` : '';
+    if (countEl) {
+      countEl.textContent = filtered.length ? `${filtered.length} mod${filtered.length !== 1 ? 's' : ''}` : '0 mods';
+    }
 
     if (!filtered.length) {
-      grid.innerHTML = `<div class="state-msg"><div class="icon">🔍</div><p>${allMods.length ? 'No mods match your search.' : 'No mods yet — be the first to upload one!'}</p></div>`;
+      grid.innerHTML = `<div class="state-msg"><div class="icon">🔍</div><p>${allMods.length ? 'No mods match your search.' : '✨ No mods yet — be the first to upload one!'}</p></div>`;
       return;
     }
 
@@ -1082,37 +1454,40 @@ document.addEventListener('DOMContentLoaded', () => {
       card.className = 'mod-card';
       card.href = `../view-mod/index.html?id=${mod.id}`;
 
-      const imgHtml = (mod.mediaUrls && mod.mediaUrls[0])
-        ? `<img class="mod-card-img" src="${escapeHtml(mod.mediaUrls[0])}" alt="${escapeHtml(mod.modName || '')}" loading="lazy" onerror="this.style.display='none'">`
+      const firstImage = (mod.mediaUrls && mod.mediaUrls[0]) ? mod.mediaUrls[0] : null;
+      
+      const imgHtml = firstImage
+        ? `<img class="mod-card-img" src="${escapeHtml(firstImage)}" alt="${escapeHtml(mod.modName || '')}" loading="lazy" onerror="this.src=''; this.parentElement.innerHTML='<div class=\"mod-card-img-placeholder\">🎮</div>'">`
         : `<div class="mod-card-img-placeholder">🎮</div>`;
 
       card.innerHTML = `
         ${imgHtml}
         <div class="mod-card-body">
-          <div class="mod-card-game">${escapeHtml(mod.gameName || 'Unknown Game')}</div>
+          <div class="mod-card-game">🎮 ${escapeHtml(mod.gameName || 'Unknown Game')}</div>
           <div class="mod-card-title">${escapeHtml(mod.modName || 'Untitled Mod')}</div>
-          <div class="mod-card-author">by ${escapeHtml(mod.authorName || 'Anonymous')}</div>
-        </div>`;
-
+          <div class="mod-card-author">${escapeHtml(mod.authorName || 'Anonymous')}</div>
+        </div>
+      `;
       grid.appendChild(card);
     });
   }
 
-  // Prevent XSS when injecting DB data into HTML
   function escapeHtml(str) {
+    if (!str) return '';
     return String(str)
-      .replace(/&/g,'&amp;')
-      .replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;')
-      .replace(/'/g,'&#39;');
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 });
 </script>
 </body>
 </html>
 
-public\mods\index.html
+
+mods\index.html
 
 <!DOCTYPE html>
 <html lang="en">
@@ -1199,7 +1574,6 @@ public\mods\index.html
       z-index: 1;
     }
 
-    /* ── CARD ── */
     .card {
       position: relative;
       z-index: 1;
@@ -1217,7 +1591,6 @@ public\mods\index.html
     }
     .card { animation: fadeUp .4s ease both; }
 
-    /* ── PROGRESS ── */
     .progress {
       display: flex;
       gap: 8px;
@@ -1233,7 +1606,6 @@ public\mods\index.html
     }
     .pdot.on { background: var(--accent); }
 
-    /* ── STEPS ── */
     .step { display: none; }
     .step.on { display: block; }
 
@@ -1260,7 +1632,6 @@ public\mods\index.html
       line-height: 1.5;
     }
 
-    /* ── INPUTS ── */
     label.field-label {
       display: block;
       font-size: 13px;
@@ -1288,9 +1659,6 @@ public\mods\index.html
       background: #222228;
     }
 
-    input::placeholder, textarea::placeholder { color: var(--muted); }
-    select option { background: var(--surface); }
-
     textarea {
       min-height: 100px;
       resize: vertical;
@@ -1304,7 +1672,6 @@ public\mods\index.html
     }
     .char-count { font-size: 12px; color: var(--muted); }
 
-    /* ── INFO BOX ── */
     .info-box {
       background: rgba(66,133,244,0.08);
       border: 1px solid rgba(66,133,244,0.2);
@@ -1314,66 +1681,8 @@ public\mods\index.html
     }
     .info-box p { font-size: 13px; color: #90b8f8; line-height: 1.6; }
     .info-box strong { font-weight: 500; color: #b8d4ff; }
+    code { background: #00000030; padding: 2px 6px; border-radius: 6px; font-size: 12px; }
 
-    /* ── GALLERY ── */
-    .gallery {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .gallery-add {
-      width: 90px;
-      height: 90px;
-      border-radius: 12px;
-      border: 1.5px dashed var(--border-hover);
-      background: var(--surface2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      color: var(--muted);
-      cursor: pointer;
-      transition: border-color .2s, color .2s;
-    }
-    .gallery-add:hover { border-color: var(--accent); color: var(--text); }
-
-    .gallery-item {
-      position: relative;
-      width: 90px;
-      height: 90px;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-    }
-
-    .gallery-item img, .gallery-item video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .gallery-remove {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: rgba(255,59,48,0.9);
-      border: none;
-      color: white;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-    }
-
-    /* ── BUTTONS ── */
     .btn-row {
       display: flex;
       gap: 10px;
@@ -1401,7 +1710,6 @@ public\mods\index.html
       color: white;
     }
     .btn-primary:hover { background: #2a75f3; transform: translateY(-1px); }
-    .btn-primary:disabled { background: #3a3a4a; border-color: transparent; color: var(--muted); cursor: not-allowed; transform: none; }
 
     .btn-publish {
       flex: 1;
@@ -1410,9 +1718,7 @@ public\mods\index.html
       color: white;
     }
     .btn-publish:hover { background: #138a6b; transform: translateY(-1px); }
-    .btn-publish:disabled { background: #3a3a4a; border-color: transparent; color: var(--muted); cursor: not-allowed; transform: none; }
 
-    /* ── CONFIRM ── */
     .confirm-box {
       background: var(--surface2);
       border: 1px solid var(--border);
@@ -1439,7 +1745,6 @@ public\mods\index.html
       line-height: 1.6;
     }
 
-    /* ── SUMMARY ── */
     .summary {
       background: var(--surface2);
       border: 1px solid var(--border);
@@ -1453,7 +1758,6 @@ public\mods\index.html
 
     .summary strong { color: var(--text); font-weight: 500; }
 
-    /* ── SPINNER ── */
     @keyframes spin { to { transform: rotate(360deg); } }
     .spinner {
       display: inline-block;
@@ -1482,7 +1786,6 @@ public\mods\index.html
 
 <div class="card">
 
-  <!-- PROGRESS -->
   <div class="progress">
     <div class="pdot on" id="d1"></div>
     <div class="pdot"    id="d2"></div>
@@ -1490,7 +1793,7 @@ public\mods\index.html
     <div class="pdot"    id="d4"></div>
   </div>
 
-  <!-- STEP 1: Basic Info -->
+  <!-- STEP 1 -->
   <div class="step on" id="s1">
     <div class="step-label">Step 1 of 4</div>
     <div class="step-title">Basic Information</div>
@@ -1520,7 +1823,7 @@ public\mods\index.html
     </div>
   </div>
 
-  <!-- STEP 2: Media (Paste Image URLs - سريع بدون رفع) -->
+  <!-- STEP 2 -->
   <div class="step" id="s2">
     <div class="step-label">Step 2 of 4</div>
     <div class="step-title">Screenshots (Paste Image URLs)</div>
@@ -1528,7 +1831,7 @@ public\mods\index.html
 
     <div class="info-box">
       <p>
-        <strong>How to get a direct image link from Google Drive:</strong><br>
+        <strong>📸 How to get a direct image link from Google Drive:</strong><br>
         1. Upload your image to Google Drive<br>
         2. Right-click → Share → General access → "Anyone with the link"<br>
         3. Copy the link<br>
@@ -1538,24 +1841,23 @@ public\mods\index.html
     </div>
 
     <label class="field-label">Image URLs (one per line) *</label>
-    <textarea id="imageUrls" rows="4" placeholder="https://drive.google.com/uc?export=view&id=YOUR_FILE_ID&#10;https://i.imgur.com/example.jpg&#10;https://example.com/image.png"></textarea>
-    <div class="char-row"><span class="char-count">Paste one link per line</span></div>
+    <textarea id="imageUrls" rows="4" placeholder="https://drive.google.com/uc?export=view&id=YOUR_FILE_ID&#10;https://i.imgur.com/example.jpg"></textarea>
 
     <div class="btn-row">
-      <button class="btn"             onclick="goStep(2,1)">← Back</button>
+      <button class="btn" onclick="goStep(2,1)">← Back</button>
       <button class="btn btn-primary" onclick="goStep(2,3)">Next →</button>
     </div>
   </div>
 
-  <!-- STEP 3: Mod File -->
+  <!-- STEP 3 -->
   <div class="step" id="s3">
     <div class="step-label">Step 3 of 4</div>
     <div class="step-title">Mod Download Link</div>
-    <p class="step-sub">Instead of uploading the file directly, paste a public download link. This avoids size limits and keeps things fast.</p>
+    <p class="step-sub">Paste a public download link to your mod file.</p>
 
     <div class="info-box">
       <p>
-        <strong>How to get a link:</strong><br>
+        <strong>📦 How to get a link:</strong><br>
         Upload your <code>.zip</code> or <code>.rar</code> to
         <strong>Google Drive</strong>, <strong>Mega</strong>, <strong>MediaFire</strong>, or <strong>GitHub Releases</strong>
         — then paste the public link below.<br>
@@ -1566,16 +1868,16 @@ public\mods\index.html
     <label class="field-label">Download Link *</label>
     <input type="url" id="modFileUrl" placeholder="https://drive.google.com/... or any direct link">
 
-    <label class="field-label" style="margin-top:4px">Installation Instructions</label>
+    <label class="field-label" style="margin-top:4px">Installation Instructions (Optional)</label>
     <textarea id="installDesc" placeholder="Explain step-by-step how to install the mod..."></textarea>
 
     <div class="btn-row">
-      <button class="btn"             onclick="goStep(3,2)">← Back</button>
+      <button class="btn" onclick="goStep(3,2)">← Back</button>
       <button class="btn btn-primary" onclick="goStep(3,4)">Next →</button>
     </div>
   </div>
 
-  <!-- STEP 4: Confirm -->
+  <!-- STEP 4 -->
   <div class="step" id="s4">
     <div class="step-label">Step 4 of 4</div>
     <div class="step-title">Review & Publish</div>
@@ -1589,12 +1891,12 @@ public\mods\index.html
     </div>
 
     <div class="btn-row">
-      <button class="btn"             onclick="goStep(4,3)">← Back</button>
+      <button class="btn" onclick="goStep(4,3)">← Back</button>
       <button class="btn btn-publish" id="publishBtn" onclick="submitMod()">Publish Mod</button>
     </div>
   </div>
 
-</div><!-- /card -->
+</div>
 
 <script>
 const firebaseConfig = {
@@ -1609,7 +1911,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-// ── Security: block unauthenticated users immediately
+// Security: block unauthenticated users
 firebase.auth().onAuthStateChanged(user => {
   if (!user) {
     alert('You must be signed in to create a mod.');
@@ -1617,9 +1919,7 @@ firebase.auth().onAuthStateChanged(user => {
   }
 });
 
-// ── Step navigation
 function goStep(from, to) {
-  // Validation
   if (from === 1 && to === 2) {
     const name = document.getElementById('modName').value.trim();
     const desc = document.getElementById('modDesc').value.trim();
@@ -1631,10 +1931,7 @@ function goStep(from, to) {
 
   if (from === 2 && to === 3) {
     const imageUrlsRaw = document.getElementById('imageUrls').value.trim();
-    if (!imageUrlsRaw) { 
-      alert('Please paste at least one image URL.'); 
-      return; 
-    }
+    if (!imageUrlsRaw) { alert('Please paste at least one image URL.'); return; }
   }
 
   if (from === 3 && to === 4) {
@@ -1647,12 +1944,10 @@ function goStep(from, to) {
   document.getElementById('s' + from).classList.remove('on');
   document.getElementById('s' + to).classList.add('on');
 
-  // Update dots — fill all dots up to current step
   const maxStep = Math.max(from, to);
   for (let i = 1; i <= 4; i++) {
     document.getElementById('d' + i).classList.toggle('on', i <= maxStep);
   }
-  // If going back, remove current dot
   if (to < from) document.getElementById('d' + from).classList.remove('on');
 }
 
@@ -1663,15 +1958,13 @@ function isValidUrl(str) {
 
 function escapeHtml(str) {
   if (!str) return '';
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 function buildSummary() {
-  const name    = document.getElementById('modName').value;
-  const game    = document.getElementById('modGame').value;
-  const desc    = document.getElementById('modDesc').value;
+  const name = document.getElementById('modName').value;
+  const game = document.getElementById('modGame').value;
+  const desc = document.getElementById('modDesc').value;
   const fileUrl = document.getElementById('modFileUrl').value;
   const imageUrlsRaw = document.getElementById('imageUrls').value;
   const imageUrls = imageUrlsRaw.split('\n').filter(u => u.trim() !== '');
@@ -1690,7 +1983,6 @@ function buildSummary() {
   `;
 }
 
-// ── Publish (بدون Cloudinary، نحفظ الروابط فقط)
 async function submitMod() {
   if (!document.getElementById('confirmCheck').checked) {
     alert('Please confirm you own this mod before publishing.');
@@ -1704,35 +1996,22 @@ async function submitMod() {
     return;
   }
 
-  const name         = document.getElementById('modName').value.trim();
-  const desc         = document.getElementById('modDesc').value.trim();
-  const game         = document.getElementById('modGame').value;
-  const fileUrl      = document.getElementById('modFileUrl').value.trim();
-  const installDesc  = document.getElementById('installDesc').value.trim();
+  const name = document.getElementById('modName').value.trim();
+  const desc = document.getElementById('modDesc').value.trim();
+  const game = document.getElementById('modGame').value;
+  const fileUrl = document.getElementById('modFileUrl').value.trim();
+  const installDesc = document.getElementById('installDesc').value.trim();
   const imageUrlsRaw = document.getElementById('imageUrls').value;
   const imageUrls = imageUrlsRaw.split('\n').filter(u => u.trim() !== '');
 
-  if (!name || !desc || !game || !fileUrl) {
+  if (!name || !desc || !game || !fileUrl || imageUrls.length === 0) {
     alert('Missing required fields. Please go back and check.');
     return;
   }
 
-  if (imageUrls.length === 0) {
-    alert('Please paste at least one image URL.');
-    return;
-  }
-
-  // Validate URLs
-  if (!isValidUrl(fileUrl)) {
-    alert('The download link is not a valid URL.');
-    return;
-  }
-
+  if (!isValidUrl(fileUrl)) { alert('The download link is not a valid URL.'); return; }
   for (let i = 0; i < imageUrls.length; i++) {
-    if (!isValidUrl(imageUrls[i].trim())) {
-      alert(`Image URL #${i+1} is not valid: ${imageUrls[i]}`);
-      return;
-    }
+    if (!isValidUrl(imageUrls[i].trim())) { alert(`Image URL #${i+1} is not valid.`); return; }
   }
 
   const publishBtn = document.getElementById('publishBtn');
@@ -1740,23 +2019,20 @@ async function submitMod() {
   publishBtn.innerHTML = '<span class="spinner"></span>Publishing...';
 
   try {
-    // ── Write mod record to Realtime Database (بدون Cloudinary، نحفظ الروابط مباشرة)
     const newRef = firebase.database().ref('mods').push();
     await newRef.set({
-      modName:             name,
-      modDesc:             desc,
-      gameName:            game,
+      modName: name,
+      modDesc: desc,
+      gameName: game,
       installInstructions: installDesc,
-      modFileUrl:          fileUrl,
-      mediaUrls:           imageUrls,  // 🔥 هنا نحفظ الروابط مباشرة
-      authorId:            user.uid,
-      authorName:          user.displayName || user.email || 'Anonymous',
-      authorEmail:         user.email,
-      createdAt:           Date.now()
+      modFileUrl: fileUrl,
+      mediaUrls: imageUrls,
+      authorId: user.uid,
+      authorName: user.displayName || user.email || 'Anonymous',
+      authorEmail: user.email,
+      createdAt: Date.now()
     });
-
     window.location.href = `../view-mod/index.html?id=${newRef.key}`;
-
   } catch (err) {
     console.error(err);
     alert('Error publishing mod: ' + err.message);
@@ -1764,12 +2040,195 @@ async function submitMod() {
     publishBtn.innerHTML = 'Publish Mod';
   }
 }
-
 </script>
 </body>
 </html>
 
-public\us\index.html
+settings\index.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="../../favicon.ico">
+  <title>Mods-Hub — Settings</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0e0e10;
+      --surface: #18181c;
+      --surface2: #1f1f25;
+      --border: rgba(255,255,255,0.08);
+      --text: #f0f0f0;
+      --muted: #888;
+      --accent: #4285F4;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(66,133,244,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(66,133,244,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 32px;
+      background: rgba(14,14,16,0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--text); text-decoration: none; }
+    .nav-logo span { color: var(--accent); }
+    .nav-back { color: var(--muted); text-decoration: none; font-size: 14px; transition: color .2s; }
+    .nav-back:hover { color: var(--text); }
+    .container { max-width: 600px; margin: 60px auto; padding: 0 24px; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+    }
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .setting-item:last-child { border-bottom: none; }
+    .setting-label { font-weight: 500; }
+    .setting-desc { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    select {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+    }
+    .danger-zone {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,59,48,0.2);
+    }
+    .danger-btn {
+      background: transparent;
+      border: 1px solid rgba(255,59,48,0.4);
+      color: #ff6b60;
+      padding: 10px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      transition: background .2s;
+    }
+    .danger-btn:hover { background: rgba(255,59,48,0.1); }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="../main/index.html" class="nav-logo">Mods<span>Hub</span></a>
+  <a href="../main/index.html" class="nav-back">← Back to Browse</a>
+</nav>
+<div class="container">
+  <div class="card">
+    <h2 style="margin-bottom: 16px;">⚙️ Settings</h2>
+    
+    <div class="setting-item">
+      <div>
+        <div class="setting-label">Language / اللغة</div>
+        <div class="setting-desc">Choose your preferred language</div>
+      </div>
+      <select id="languageSelect">
+        <option value="en">English</option>
+        <option value="ar">العربية</option>
+      </select>
+    </div>
+
+    <div class="setting-item">
+      <div>
+        <div class="setting-label">Theme</div>
+        <div class="setting-desc">Dark mode only (for now)</div>
+      </div>
+      <select disabled style="opacity:0.6;">
+        <option>Dark (Default)</option>
+      </select>
+    </div>
+
+    <div class="danger-zone">
+      <button class="danger-btn" id="deleteAccountBtn">⚠️ Delete My Account</button>
+      <div class="setting-desc" style="margin-top: 8px; text-align: center;">This will permanently delete your account and all your mods.</div>
+    </div>
+  </div>
+</div>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyD2GtdV6GXnRXmotFnesm0Z4W8rPWI5n3I",
+  authDomain: "mods-hub-b0fea.firebaseapp.com",
+  projectId: "mods-hub-b0fea",
+  storageBucket: "mods-hub-b0fea.appspot.com",
+  messagingSenderId: "991520677693",
+  appId: "1:991520677693:web:75612c95769a89dc9baf54"
+};
+firebase.initializeApp(firebaseConfig);
+
+// Load saved language
+const savedLang = localStorage.getItem('modshub_lang') || 'en';
+document.getElementById('languageSelect').value = savedLang;
+document.getElementById('languageSelect').addEventListener('change', (e) => {
+  localStorage.setItem('modshub_lang', e.target.value);
+  alert('Language preference saved. Refresh the page to see changes (coming soon).');
+});
+
+firebase.auth().onAuthStateChanged((user) => {
+  if (!user) {
+    window.location.href = '../login/index.html';
+  }
+});
+
+document.getElementById('deleteAccountBtn').addEventListener('click', async () => {
+  const user = firebase.auth().currentUser;
+  if (!user) return;
+  const confirmed = confirm('⚠️ WARNING: This will permanently delete your account AND ALL YOUR MODS. This cannot be undone. Type "DELETE" to confirm.');
+  if (!confirmed) return;
+  
+  const confirmText = prompt('Type "DELETE" to confirm account deletion:');
+  if (confirmText !== 'DELETE') { alert('Cancelled.'); return; }
+  
+  try {
+    // Delete all user's mods first
+    const modsSnap = await firebase.database().ref('mods').orderByChild('authorId').equalTo(user.uid).once('value');
+    const updates = {};
+    if (modsSnap.exists()) {
+      modsSnap.forEach(child => { updates[`mods/${child.key}`] = null; });
+      await firebase.database().ref().update(updates);
+    }
+    // Delete auth account
+    await user.delete();
+    alert('Account deleted successfully.');
+    window.location.href = '../main/index.html';
+  } catch (err) {
+    alert('Error: ' + err.message + ' (You may need to re-authenticate recently)');
+  }
+});
+</script>
+</body>
+</html>
+
+us\index.html
 
 <!DOCTYPE html>
 <html lang="en">
@@ -1950,7 +2409,7 @@ public\us\index.html
 </body>
 </html>
 
-public\view-mod\index.html
+view-mod\index.html
 
 <!DOCTYPE html>
 <html lang="en">
@@ -2025,7 +2484,6 @@ public\view-mod\index.html
       padding: 40px 24px;
     }
 
-    /* ── hero image / gallery ── */
     .media-hero {
       width: 100%; aspect-ratio: 16/9;
       background: var(--surface2);
@@ -2061,7 +2519,6 @@ public\view-mod\index.html
       width: 100%; height: 100%; object-fit: cover; pointer-events: none;
     }
 
-    /* ── header ── */
     .mod-header {
       display: flex; align-items: flex-start; justify-content: space-between;
       gap: 16px; margin-bottom: 24px;
@@ -2096,9 +2553,6 @@ public\view-mod\index.html
       box-shadow: 0 8px 24px rgba(66,133,244,0.3);
     }
 
-    .download-btn svg { flex-shrink: 0; }
-
-    /* ── sections ── */
     .section {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -2117,7 +2571,6 @@ public\view-mod\index.html
       white-space: pre-wrap;
     }
 
-    /* ── delete button (author only) ── */
     .danger-btn {
       display: inline-flex; align-items: center; gap: 8px;
       background: transparent; border: 1px solid rgba(255,59,48,0.4);
@@ -2128,12 +2581,10 @@ public\view-mod\index.html
     }
     .danger-btn:hover { background: rgba(255,59,48,0.08); border-color: rgba(255,59,48,0.7); }
 
-    /* ── loading / error ── */
     .state-center {
       text-align: center; padding: 80px 20px; color: var(--muted);
     }
     .state-center .icon { font-size: 48px; margin-bottom: 14px; }
-    .state-center p { font-size: 16px; }
 
     @media(max-width:600px) {
       nav { padding: 12px 16px; }
@@ -2165,79 +2616,86 @@ const firebaseConfig = {
   projectId: "mods-hub-b0fea",
   storageBucket: "mods-hub-b0fea.appspot.com",
   messagingSenderId: "991520677693",
-  appId: "1:991520677693:web:75612c95769a89dc9baf54"
+  appId: "1:991520677693:web:75612c95769a89dc9baf54",
+  databaseURL: "https://mods-hub-b0fea-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
 
-firebase.initializeApp(firebaseConfig);
+// تأكد من تهيئة Firebase مرة واحدة فقط
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
 function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 const params = new URLSearchParams(window.location.search);
-const modId  = params.get('id');
+const modId = params.get('id');
 
 if (!modId) {
-  document.getElementById('content').innerHTML = `
-    <div class="state-center"><div class="icon">❌</div><p>No mod ID provided.</p></div>`;
+  document.getElementById('content').innerHTML = `<div class="state-center"><div class="icon">❌</div><p>No mod ID provided.</p></div>`;
 } else {
-  firebase.database().ref('mods-list/' + modId).once('value').then(snap => {
-    if (!snap.exists()) {
-      document.getElementById('content').innerHTML = `
-        <div class="state-center"><div class="icon">🔍</div><p>Mod not found.</p></div>`;
-      return;
-    }
-
-    const mod = snap.val();
-    renderMod(mod);
-
-    // Check auth for delete button
-    firebase.auth().onAuthStateChanged(user => {
-      if (user && user.uid === mod.authorId) {
-        const delBtn = document.getElementById('delete-btn');
-        if (delBtn) delBtn.style.display = 'inline-flex';
+  console.log("Loading mod with ID:", modId);
+  
+  // محاولة قراءة المود من قاعدة البيانات
+  firebase.database().ref('mods/' + modId).once('value')
+    .then(snap => {
+      console.log("Snapshot exists:", snap.exists());
+      
+      if (!snap.exists()) {
+        document.getElementById('content').innerHTML = `<div class="state-center"><div class="icon">🔍</div><p>Mod not found. It may have been deleted.</p></div>`;
+        return;
       }
+
+      const mod = snap.val();
+      console.log("Mod loaded:", mod.modName);
+      renderMod(mod);
+
+      firebase.auth().onAuthStateChanged(user => {
+        if (user && user.uid === mod.authorId) {
+          const delBtn = document.getElementById('delete-btn');
+          if (delBtn) delBtn.style.display = 'inline-flex';
+        }
+      });
+    })
+    .catch(err => {
+      console.error("Error loading mod:", err);
+      document.getElementById('content').innerHTML = `<div class="state-center"><div class="icon">⚠️</div><p>Failed to load mod. Error: ${err.message}</p></div>`;
     });
-  }).catch(() => {
-    document.getElementById('content').innerHTML = `
-      <div class="state-center"><div class="icon">⚠️</div><p>Failed to load mod. Try again later.</p></div>`;
-  });
 }
 
 function renderMod(mod) {
-  const media  = mod.mediaUrls || [];
-  const date   = mod.createdAt ? new Date(mod.createdAt).toLocaleDateString('en-GB', { year:'numeric', month:'long', day:'numeric' }) : 'Unknown date';
+  const media = mod.mediaUrls || [];
+  const date = mod.createdAt ? new Date(mod.createdAt).toLocaleDateString('en-GB', { year:'numeric', month:'long', day:'numeric' }) : 'Unknown date';
 
-  // Build hero
   let heroContent = '';
-  if (media.length > 0) {
-    const isVideo = /\.(mp4|webm|mov|avi)$/i.test(media[0]) || media[0].includes('video');
+  if (media.length > 0 && media[0]) {
+    const firstUrl = media[0];
+    const isVideo = /\.(mp4|webm|mov|avi)$/i.test(firstUrl) || firstUrl.includes('video') || firstUrl.includes('youtube');
     if (isVideo) {
-      heroContent = `<video id="hero-media" src="${escapeHtml(media[0])}" controls muted loop playsinline style="width:100%;height:100%;object-fit:cover"></video>`;
+      heroContent = `<video id="hero-media" src="${escapeHtml(firstUrl)}" controls muted loop playsinline style="width:100%;height:100%;object-fit:cover"></video>`;
     } else {
-      heroContent = `<img id="hero-media" src="${escapeHtml(media[0])}" alt="${escapeHtml(mod.modName || '')}">`;
+      heroContent = `<img id="hero-media" src="${escapeHtml(firstUrl)}" alt="${escapeHtml(mod.modName || '')}" style="width:100%;height:100%;object-fit:cover">`;
     }
   } else {
     heroContent = `<div class="media-hero-placeholder">🎮</div>`;
   }
 
-  // Thumbnails
   let thumbsHtml = '';
   if (media.length > 1) {
     thumbsHtml = '<div class="thumb-row" id="thumb-row">';
     media.forEach((url, i) => {
+      if (!url) return;
       const isVid = /\.(mp4|webm|mov|avi)$/i.test(url) || url.includes('video');
       const inner = isVid
         ? `<video src="${escapeHtml(url)}" muted playsinline style="width:100%;height:100%;object-fit:cover;pointer-events:none"></video>`
-        : `<img src="${escapeHtml(url)}" alt="Screenshot ${i+1}">`;
+        : `<img src="${escapeHtml(url)}" alt="Screenshot ${i+1}" style="width:100%;height:100%;object-fit:cover">`;
       thumbsHtml += `<div class="thumb${i===0?' active':''}" data-index="${i}" data-url="${escapeHtml(url)}" data-type="${isVid?'video':'img'}">${inner}</div>`;
     });
     thumbsHtml += '</div>';
   }
 
-  // Download link
   const dlBtn = mod.modFileUrl
     ? `<a class="download-btn" href="${escapeHtml(mod.modFileUrl)}" target="_blank" rel="noopener noreferrer">
          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -2245,13 +2703,14 @@ function renderMod(mod) {
        </a>`
     : `<span style="color:var(--muted);font-size:14px">No download link provided</span>`;
 
-  // Install instructions
   const installHtml = mod.installInstructions
     ? `<div class="section">
-         <div class="section-title">Installation Instructions</div>
+         <div class="section-title">📥 Installation Instructions</div>
          <p>${escapeHtml(mod.installInstructions)}</p>
        </div>`
     : '';
+
+  const authorEmail = mod.authorEmail ? `<span>${escapeHtml(mod.authorEmail)}</span>` : '';
 
   document.getElementById('content').innerHTML = `
     <div class="media-hero">${heroContent}</div>
@@ -2259,43 +2718,40 @@ function renderMod(mod) {
 
     <div class="mod-header">
       <div>
-        <div class="mod-game-tag">${escapeHtml(mod.gameName || 'Unknown Game')}</div>
+        <div class="mod-game-tag">🎮 ${escapeHtml(mod.gameName || 'Unknown Game')}</div>
         <div class="mod-title">${escapeHtml(mod.modName || 'Untitled Mod')}</div>
         <div class="mod-meta">
-          <span>By ${escapeHtml(mod.authorName || 'Anonymous')}</span>
-          <span>Published ${date}</span>
+          <span>👤 By ${escapeHtml(mod.authorName || 'Anonymous')}</span>
+          ${authorEmail}
+          <span>📅 Published ${date}</span>
         </div>
       </div>
       ${dlBtn}
     </div>
 
     <div class="section">
-      <div class="section-title">About This Mod</div>
+      <div class="section-title">📖 About This Mod</div>
       <p>${escapeHtml(mod.modDesc || 'No description provided.')}</p>
     </div>
 
     ${installHtml}
 
     <button class="danger-btn" id="delete-btn" style="display:none" onclick="deleteMod()">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-      Delete This Mod
+      🗑️ Delete This Mod
     </button>
   `;
 
-  // ── Thumbnail switcher
+  // تشغيل معرض الصور
   const thumbRow = document.getElementById('thumb-row');
   if (thumbRow) {
     thumbRow.addEventListener('click', e => {
       const thumb = e.target.closest('.thumb');
       if (!thumb) return;
-
       thumbRow.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
       thumb.classList.add('active');
-
       const heroWrap = document.querySelector('.media-hero');
-      const url  = thumb.dataset.url;
+      const url = thumb.dataset.url;
       const type = thumb.dataset.type;
-
       if (type === 'video') {
         heroWrap.innerHTML = `<video src="${url}" controls muted loop playsinline style="width:100%;height:100%;object-fit:cover"></video>`;
       } else {
@@ -2307,36 +2763,80 @@ function renderMod(mod) {
 
 async function deleteMod() {
   const user = firebase.auth().currentUser;
-  if (!user) return;
-
   const params = new URLSearchParams(window.location.search);
   const modId = params.get('id');
-
-  if (!confirm('Are you sure you want to permanently delete this mod? This cannot be undone.')) return;
-
+  
+  if (!user) { 
+    alert('Please sign in first.'); 
+    return; 
+  }
+  
   try {
-    await firebase.database().ref('mods-list/' + modId).remove();
-    alert('Mod deleted successfully.');
+    // التحقق من ملكية المود قبل الحذف
+    const snap = await firebase.database().ref('mods/' + modId).once('value');
+    if (!snap.exists()) { 
+      alert('Mod not found.'); 
+      return; 
+    }
+    if (snap.val().authorId !== user.uid) { 
+      alert('You can only delete your own mods.'); 
+      return; 
+    }
+    
+    if (!confirm('⚠️ Are you sure you want to permanently delete this mod? This cannot be undone.')) return;
+    
+    await firebase.database().ref('mods/' + modId).remove();
+    alert('✅ Mod deleted successfully.');
     window.location.href = '../main/index.html';
   } catch (err) {
+    console.error('Delete error:', err);
     alert('Error deleting mod: ' + err.message);
   }
 }
-console.log("modId =", modId);
 </script>
 </body>
 </html>
 
+index.html
 
-
-
-
-شوف ذا كل الموقع حقي تاكد اذا فيه مشاكل ولا وضبط التصميم خله يتبع تصميم الموقع كامل مثل ما انت تسوي انا مشكلتي الحين في نشر الموقع كنت معتمد على مكتبات وحولتها الى روابط يعني يروح github ولا googledrive يحط الي يبي يسوي نسخ للملفات ويحطها هنا وخلاص مفروض مثل الصور والملفات 
-
-فيصير اول ما ينشرها يرجع للصفحة الرئيسية مفروض يحصل موده قدامه بالصورة الي هو حط رابطها + لو يضغط عليها يروح لصفحة المود وفيها كلشي يخص المود وصانع المود مثل رابط التحميل والصور والشرح والمقاطع والاسم والدسكربشن وكلشي يعني فهمت ليش ما تضبط الحين شوف ارسلت لك كلشي ضبطه لاهنت باحسن صورة لان خلاص لو ضبط ذا باذن الله بنشره 
-
-++ ضبط الامان حق الموقع بشكل جبار ولا احد يقدر يسوي مود الا اذا سجل دخول او ما يقدر يحمل اي مود الا اذا سجل دخول وكذا وسو لي ملف ثاني خاص بالحساب شفت زر login لو تسجل دخول مو صح يصير باسمك بقوقل ويتحول الى صورة شخصية وكذا خل ذا الزر لو ضغطته تطلع لك ازرار مثل الحساب او الاعدادات لما تروح الحساب يفتح لك dialog او صفحة جديدة بكيفك تقدر تعدل اسمك وتشوف المودات الي انت مسويها وتشوف الناس وش كاتبين وكذا وتقدر تحذفه لو ما بغيته وكذا والاعدادات فيه اللغات 
-
-
-
-ذا تقريبا اغلب الاشياء الي ابيها تكف لا تقصر معي يبو الشباب يلا بالتوفيق وبحفظ الله
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="0; url=./main/index.html">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <title>Redirecting to Mods-Hub...</title>
+    <style>
+        body {
+            background: #0e0e10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: 'DM Sans', sans-serif;
+            color: #888;
+        }
+        .loader {
+            text-align: center;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(66,133,244,0.2);
+            border-top-color: #4285F4;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader">
+        <div class="spinner"></div>
+        <p>Redirecting to Mods-Hub...</p>
+    </div>
+</body>
+</html>     
